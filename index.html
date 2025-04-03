@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Classification Table</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: transparent;
+            color: #054607;
+            font-family: "Comfortaa", sans-serif;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+            font-size: 20px;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        th, td {
+            border: 5px solid #498202;
+            padding: 20px;
+            color: #054607;
+            background: rgba(254, 255, 234);
+            border-radius: 5px; /* Rounded edges */
+        }
+
+        th {
+            background-color: #82A436;
+            color: white;
+            font-weight: bold;
+            text-align: left; /* Left align the header for the first column */
+        }
+
+        td {
+            text-align: left; /* Left align the content in the first column */
+        }
+
+        /* Center the header and content for YES and NO columns */
+        th:nth-child(2), th:nth-child(3),
+        td:nth-child(2), td:nth-child(3) {
+            text-align: center; /* Center the header and content for YES and NO columns */
+        }
+
+        td:hover {
+            background-color: #447804;
+            color: white;
+            cursor: pointer;
+        }
+
+        .bg-warning {
+            background-color: #498202;
+            color: white;
+        }
+
+        /* Centering and enlarging checkboxes */
+        .checkbox {
+            width: 30px; /* Width of the checkbox */
+            height: 30px; /* Height of the checkbox */
+            display: block; /* Make it a block element */
+            margin: 0 auto; /* Center the checkbox */
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var jewelClassifications = [
+            "Heart Disease",
+            "Chest Pain",
+            "Asthma",
+            "Diarrhea",
+            "Tuberculosis",
+            "Chickenpox",
+            "Measles",
+            "Dengue",
+            "Pneumonia",
+            "COVID-19",
+            "HIV",
+            "High Blood Pressure",
+            "Kidney Disease",
+            "Anemia",
+            "Malaria",
+            "G6PD"
+        ];
+
+        // Load data from local storage or initialize with default values
+        var jewelStoredData = JSON.parse(localStorage.getItem('jewelClassificationData')) || jewelClassifications.map(jewelClassification => ({
+            classification: jewelClassification,
+            jewelYes: false,
+            jewelNo: false
+        }));
+
+        var tbl = '<table class="table table-hover">';
+        tbl += '<thead><tr><th>CLASSIFICATION</th><th>YES</th><th>NO</th></tr></thead>';
+        tbl += '<tbody>';
+        
+        $.each(jewelStoredData, function(index, jewelItem) {
+            tbl += `<tr>
+                        <td><div class="row_data jewel_classification" edit_type="click" contenteditable="true">${jewelItem.classification}</div></td>
+                        <td><input type="checkbox" class="checkbox jewel_yes_checkbox" ${jewelItem.jewelYes ? 'checked' : ''} /></td>
+                        <td><input type="checkbox" class="checkbox jewel_no_checkbox" ${jewelItem.jewelNo ? 'checked' : ''} /></td>
+                    </tr>`;
+        });
+        
+        tbl += '</tbody></table>';
+        
+        $('.tbl_user_data').html(tbl);
+
+        // Editable functionality for the classification column
+        $(document).on('click', '.row_data', function(event) {
+            event.preventDefault(); 
+            if ($(this).attr('edit_type') == 'button') return false;
+            $(this).attr('contenteditable', 'true').addClass('bg-warning').focus();
+        });
+
+        $(document).on('focusout', '.row_data', function(event) {
+            event.preventDefault();
+            if ($(this).attr('edit_type') == 'button') return false;
+            $(this).removeClass('bg-warning');
+            saveJewelData(); // Save data on focus out
+        });
+
+        // Save checkbox state and editable fields to local storage
+        function saveJewelData() {
+            var jewelDataToSave = [];
+            $('tbody tr').each(function() {
+                var jewelClassification = $(this).find('.jewel_classification').text();
+                var jewelYes = $(this).find('.jewel_yes_checkbox').is(':checked');
+                var jewelNo = $(this).find('.jewel_no_checkbox').is(':checked');
+                jewelDataToSave.push({ classification: jewelClassification, jewelYes: jewelYes, jewelNo: jewelNo });
+            });
+            localStorage.setItem('jewelClassificationData', JSON.stringify(jewelDataToSave));
+        }
+
+        // Change checkbox behavior for YES column
+        $(document).on('change', '.jewel_yes_checkbox', function() {
+            saveJewelData(); // Save data on change
+        });
+
+        // Change checkbox behavior for NO column
+        $(document).on('change', '.jewel_no_checkbox', function() {
+            saveJewelData(); // Save data on change
+        });
+    });
+    </script>
+
+</head>
+<body>
+    <div class="tbl_user_data"></div>
+</body>
+</html>
